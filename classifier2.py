@@ -16,13 +16,9 @@ load() -> to load state from "classifier.pth"
 forward(image_tensor) -> to yield output 18-length attributes tensor
 preprocess_image(image_path) -> to read file and construct tensor
 
-
-
-
 '''
 
 img_location = "/Users/gsp/Downloads/images"
-
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
 pattern_texture_labels = "/Users/gsp/Downloads/labels/texture/pattern_ann.txt"
@@ -52,16 +48,19 @@ def read_data(filename):
 
 
 
-class Classifier(nn.Module):
+class Classifier_with_color(nn.Module):
     def __init__(self, shape_labels_file,  fabric_texture_file, pattern_file):
-        super(Classifier, self).__init__()
-        self.num_classes = 18
-        self.inception = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', weights="DEFAULT")
-        self.last_layer = torch.nn.Linear(self.inception.fc.in_features, self.num_classes) 
-        self.inception.fc = nn.Identity()
-        self.inception.eval()
+        super(Classifier_with_color, self).__init__()
+        self.num_classes = 98 ## Training rather over one-hot
+        self.vgg = torch.hub.load('pytorch/vision:v0.10.0', 'vgg11', weights = "DEFAULT")
         
-        for param in self.inception.parameters():
+        in_features = self.vgg.classifier[-1].in_features
+        self.last_layer = torch.nn.Linear(in_features, self.num_classes) 
+        self.sg = torch.nn.Sigmoid()
+        self.vgg.classifier[-1] = nn.Identity()
+        self.vgg.eval()
+        
+        for param in self.vgg.parameters():
             param.requires_grad = False
         for param in self.last_layer.parameters():
             param.requires_grad = True
@@ -70,9 +69,8 @@ class Classifier(nn.Module):
         self.fabric_texture_labels_dict = read_data(fabric_texture_file)
         self.pattern_texture_labels_dict = read_data(pattern_file)
 
-
         self.optimizer = optim.Adam(self.parameters(), lr=0.001)
-        self.criterion = torch.nn.MSELoss(reduction='sum')
+        self.criterion = torch.nn.BCELoss(reduction= 'sum')
         if torch.cuda.is_available():
             self.device = torch.device('cuda:0')
         else:
@@ -81,16 +79,18 @@ class Classifier(nn.Module):
 
     def forward(self, image):
         #print("Forward recieved input shape =", image.shape)
-        x = self.inception(image)
+        x = self.vgg(image)
+        
         out = self.last_layer(x).view(-1)
+        out = self.sg(out)
         return out
     
     ## Takes in full path!
     def preprocess_image(self, image_filename):
         input_image = Image.open(image_filename)
         preprocess = torchvision.transforms.Compose([
-            torchvision.transforms.Resize(299),
-            torchvision.transforms.CenterCrop(299),
+            torchvision.transforms.Resize(224),
+            torchvision.transforms.CenterCrop(224),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
@@ -99,34 +99,36 @@ class Classifier(nn.Module):
         return input_batch
     
     def save(self):
-        torch.save(self.state_dict(), "models/classifier.pth")
-        print("saving trained model as models/classifier.pth !")
+        torch.save(self.state_dict(), "models/classifier_wc.pth")
+        print("saving trained model as models/classifier_wc.pth !")
         return
     
     def load(self):
-        if os.path.exists("models/classifier.pth"):
-            self.load_state_dict(torch.load("models/classifier.pth"))
+        if os.path.exists("models/classifier_wc.pth"):
+            self.load_state_dict(torch.load("models/classifier_wc.pth"))
         else:
             print("Model does not exist, training it first")
             self.learn(img_location)
             self.save()
             self.load()
 
-        print("loaded presaved model from models/classifier.pth !")
+        print("loaded presaved model from models/classifier_wc.pth !")
         return
     
     def learn(self, image_dir):
         file_list = os.listdir(image_dir)
         file_list_with_path = [os.path.join(image_dir, file) for file in file_list]
         j = 0
-        for i in range(len(file_list)):
-        #for i in range(500):
+        #for i in range(len(file_list)):
+        for i in range(500):
             img_file_name = file_list[i]
             img_file_path = file_list_with_path[i]
 
             if img_file_name in self.shape_labels_dict.keys() and img_file_name in self.fabric_texture_labels_dict.keys() and img_file_name in self.pattern_texture_labels_dict.keys():
                 vector_img = self.shape_labels_dict[img_file_name] + self.fabric_texture_labels_dict[img_file_name] + self.pattern_texture_labels_dict[img_file_name]
-                vector_tensor = torch.tensor(vector_img, dtype = torch.float).to(self.device) ## The 23 length vector
+                one_hot_features = features_to_one_hot(vector_img)
+                one_hot_tensor = torch.tensor(one_hot_features, dtype = torch.float).to(self.device) ## The 98 length vector
+
 
                 image_processed = self.preprocess_image(img_file_path).to(self.device)
                 model_output = self.forward(image_processed)
@@ -134,7 +136,7 @@ class Classifier(nn.Module):
                 #print("Model's output has dims = ", model_output.shape)
                 #print("Tensor to train to has dims = ", vector_tensor.shape)
                 self.optimizer.zero_grad()
-                loss = self.criterion(model_output, vector_tensor)
+                loss = self.criterion(model_output, one_hot_tensor)
                 loss.backward()
                 self.optimizer.step()
             else:
@@ -145,44 +147,56 @@ class Classifier(nn.Module):
         print("Total unbalanced keys = ", j)
         return
     
-
-def returnOneHot(ourClassifier : Classifier, image_path):
-    img_tensor = ourClassifier.preprocess_image(image_path)
-    inferred_features = torch.Tensor.tolist(ourClassifier.forward(img_tensor))
-    inferres_ints = [round(x) for x in inferred_features]
+def features_to_one_hot(image_features):
     features_length_dataset = [6, 5, 4, 3, 5, 3, 3, 3, 5, 7, 3, 3, 8, 8, 8, 8, 8, 8]
-    for i in range(len(inferres_ints)): ## Prune
-        if inferres_ints[i] < 0:
-            inferres_ints[i] = 0
-        elif inferres_ints[i] >= features_length_dataset[i]:
-            inferres_ints[i] = features_length_dataset[i] -1
+    for i in range(len(image_features)): ## Clip
+        if image_features[i] < 0:
+            image_features[i] = 0
+        elif image_features[i] >= features_length_dataset[i]:
+            image_features[i] = features_length_dataset[i] -1
         
     one_hot = [0 for _ in range(98)]
-                            #  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11, 
-    
-
     cur_ind = 0
     for i in range(18):
         ## We're talking about feature ith
         #print("i = ", i, "should have feature starting at = ", cur_ind, " and now, we have entry at =", inferres_ints[i])
-        
-        one_hot[cur_ind + inferres_ints[i]] = 1 ## If in valid range, turn this indicator on
-            #print("writing 1 to position : ", cur_ind + inferres_ints[i])
-        
+        one_hot[cur_ind + image_features[i]] = 1 ## If in valid range, turn this indicator on
         cur_ind += features_length_dataset[i] ## Increment pointer by len(feature)
 
     return one_hot
 
-def returnTextWords(ourClassifier : Classifier, image_path):
+
+def returnOneHot(ourClassifier : Classifier_with_color, image_path):
     img_tensor = ourClassifier.preprocess_image(image_path)
     inferred_features = torch.Tensor.tolist(ourClassifier.forward(img_tensor))
     inferres_ints = [round(x) for x in inferred_features]
+    return inferres_ints
+
+
+def one_hot_to_features(ourClassifier : Classifier_with_color, image_path):
+    img_tensor = ourClassifier.preprocess_image(image_path)
+    inferred_features = torch.Tensor.tolist(ourClassifier.forward(img_tensor)) ## length 98
     features_length_dataset = [6, 5, 4, 3, 5, 3, 3, 3, 5, 7, 3, 3, 8, 8, 8, 8, 8, 8]
-    for i in range(len(inferres_ints)): ## Prune
-        if inferres_ints[i] < 0:
-            inferres_ints[i] = 0
-        elif inferres_ints[i] >= features_length_dataset[i]:
-            inferres_ints[i] = features_length_dataset[i] -1
+
+    features = []
+    cur_ind = 0
+    for i in range(18): ## For all features
+        max_el = -1
+        max_at = -1
+        for j in range(cur_ind, cur_ind + features_length_dataset[i]): ## Check the range spanned by this feature
+            if inferred_features[j] > max_el:
+                max_el = inferred_features[j]
+                max_at = j
+
+        features.append(max_at-cur_ind)
+        cur_ind += features_length_dataset[i]
+        
+        
+
+    return features
+
+def returnTextWords(ourClassifier : Classifier_with_color, image_path):
+    inferres_ints = one_hot_to_features(ourClassifier, image_path)
     #print("Inferred Feautures = ", inferres_ints)
     words = []
                             #  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,
@@ -218,20 +232,33 @@ def returnTextWords(ourClassifier : Classifier, image_path):
 
 
 def a():
-    ourClassifier = Classifier(shape_labels_file=shape_labels, fabric_texture_file=fabric_texture_labels, pattern_file=pattern_texture_labels)
-    ourClassifier.load()
+    ourClassifier = Classifier_with_color(shape_labels_file=shape_labels, fabric_texture_file=fabric_texture_labels, pattern_file=pattern_texture_labels)
+    
     sample = "MEN-Denim-id_00000080-01_7_additional.jpg"
     img1 = "/Users/gsp/Downloads/images/MEN-Denim-id_00000080-01_7_additional.jpg"
     img1_t = ourClassifier.preprocess_image(img1)
-    print("FORWARD +++++++",ourClassifier.forward(img1_t))
+    #print("FORWARD +++++++",ourClassifier.forward(img1_t))
     print("labels shape, fabric, pattern",ourClassifier.shape_labels_dict[sample], ourClassifier.fabric_texture_labels_dict[sample], ourClassifier.pattern_texture_labels_dict[sample])
     one_hot = returnOneHot(ourClassifier, img1)
+    features = one_hot_to_features(ourClassifier, img1)
     text_words = returnTextWords(ourClassifier, img1)
-    print("one_hot encoding = ", one_hot)
+    #print("one_hot encoding = ", one_hot)
     print("text words =", text_words)
+    print("features = ", features)
+    ourClassifier.load()
+    print("AFTER TRAINING")
+    #print("FORWARD +++++++",ourClassifier.forward(img1_t))
+    one_hot = returnOneHot(ourClassifier, img1)
+    text_words = returnTextWords(ourClassifier, img1)
+    features = one_hot_to_features(ourClassifier, img1)
+    #print("one_hot encoding = ", one_hot)
+    print("text words =", text_words)
+    print("features = ", features)
+    
+    
     return
 
-#a()
+a()
 
 # print("labels shape, fabric, pattern",shape_labels_dict[sample], fabric_texture_labels_dict[sample], pattern_texture_labels_dict[sample])
 # img1 = "/Users/gsp/Downloads/images/MEN-Sweatshirts_Hoodies-id_00000146-02_1_front.jpg"

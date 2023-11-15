@@ -11,20 +11,25 @@ from PIL import Image
 Visualiser has the following methods:
 
 forward(image) -> to get visual features from image tensor
-load() -> to load from "visualiser.pth"
-save() -> to save to "visualiser.pth"
+load() -> to load from "visualiser_vgg.pth"
+save() -> to save to "visualiser_vgg.pth"
 preprocess_image -> to convert image to suitably shaped tensor
 
 '''
 
-class Visualiser(nn.Module):
+class Visualiser_vgg(nn.Module):
     def __init__(self):
-        super(Visualiser, self).__init__()
-        self.inception = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', weights="DEFAULT")
-        self.inception.fc = nn.Identity()
-        self.inception.eval()
+        super(Visualiser_vgg, self).__init__()
+
+        self.num_classes = 98 ## Training rather over one-hot
+        self.vgg = torch.hub.load('pytorch/vision:v0.10.0', 'vgg11', weights="DEFAULT")
+        self.vgg.classifier[-1] = nn.Identity()
+        self.ll = torch.nn.MaxPool1d(4)
+        self.vgg.eval()
         
-        for param in self.inception.parameters():
+        for param in self.vgg.parameters():
+            param.requires_grad = False
+        for param in self.ll.parameters():
             param.requires_grad = False
 
         if torch.cuda.is_available():
@@ -34,23 +39,24 @@ class Visualiser(nn.Module):
         self.to(self.device)
 
     def forward(self, image):
-        out = self.inception(image).view(-1)
+        out = self.vgg(image)
+        out = self.ll(out).view(-1)
         return out
     
     def save(self):
-        torch.save(self.state_dict(), "models/visualiser.pth")
-        print("saving trained model as models/visualiser.pth !")
+        torch.save(self.state_dict(), "models/visualiser_vgg.pth")
+        print("saving trained model as models/visualiser_vgg.pth !")
         return
     def load(self):
-        self.load_state_dict(torch.load("models/visualiser.pth"))
-        print("loaded presaved model from models/visualiser.pth !")
+        self.load_state_dict(torch.load("models/visualiser_vgg.pth"))
+        print("loaded presaved model from models/visualiser_vgg.pth !")
         return
     
     def preprocess_image(self, image_filename):
         input_image = Image.open(image_filename)
         preprocess = torchvision.transforms.Compose([
-            torchvision.transforms.Resize(299),
-            torchvision.transforms.CenterCrop(299),
+            torchvision.transforms.Resize(224),
+            torchvision.transforms.CenterCrop(224),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
@@ -65,7 +71,7 @@ img1 = "/Users/gsp/Downloads/images/MEN-Denim-id_00000080-01_7_additional.jpg"
 
 
 ## Gives a list of 2048-length visual features from image_path 
-def returnVisualFeatures(ourVisualiser : Visualiser, image_path):
+def returnVisualFeatures(ourVisualiser : Visualiser_vgg, image_path):
     tensor1 = ourVisualiser.preprocess_image(image_path)
     image_results = ourVisualiser.forward(tensor1)
     feature_list = torch.Tensor.tolist(image_results)
@@ -73,14 +79,14 @@ def returnVisualFeatures(ourVisualiser : Visualiser, image_path):
     
 
 def b():
-    ourVisualiser = Visualiser()
-    #ourVisualiser.save()
+    ourVisualiser = Visualiser_vgg()
+    ourVisualiser.save()
     ourVisualiser.load()
     visual_features = returnVisualFeatures(ourVisualiser, img1)
     print(len(visual_features))
 
 
-#b()
+b()
 
 
 

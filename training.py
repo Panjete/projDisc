@@ -8,10 +8,10 @@ from annoy import AnnoyIndex
 from preprocess_words import get_query_vector2
 
 #### OUTPUT FILES ####
-test_embedding_file = 'text_embedding.pkl'
+test_embedding_file = 'models/text_embedding.pkl'
 generic_text = "sleeveless print block pure color"
-learnt_data_space = "vector_search.pkl"
-training_dict_files = 'images_list.pkl'
+learnt_data_space = "models/vector_search.pkl"
+training_dict_files = 'models/images_list.pkl'
 
 
 #### INPUT FILES ####
@@ -31,6 +31,10 @@ ourVisualiser.load()
 
 # List all files in the folder -> FILENAMES, not FILEPATHS
 file_list = os.listdir(folder_path)
+
+folder_path_models = os.path.join(os.getcwd(), "models")
+if not(os.path.exists(folder_path) and os.path.isdir(folder_path)):
+    os.makedirs(folder_path)
 
 with open(caption_file, 'r') as f:
     captions = json.load(f)

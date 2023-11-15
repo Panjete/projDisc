@@ -19,11 +19,11 @@ query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front
 #query_image = "/Users/gsp/Downloads/1516264345931.jpeg"
 query_text = "woman floral" ## Make sure empty code handled
 
-learnt_data_space = "vector_search.pkl"
-training_dict_files = 'images_list.pkl'
+learnt_data_space = "models/vector_search.pkl"
+training_dict_files = 'models/images_list.pkl'
 distance_mode = 'angular'     # 'angular' is suitable for cosine similarity. Can also try "euclidean", "manhattan", "hamming", or "dot"
 vector_length = 2346
-text_embeddings_file = 'text_embedding.pkl'
+text_embeddings_file = 'models/text_embedding.pkl'
 
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
