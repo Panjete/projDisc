@@ -92,20 +92,20 @@ class Classifier_vgg(nn.Module):
         return input_batch
     
     def save(self):
-        torch.save(self.state_dict(), "models/classifier_wc.pth")
-        print("saving trained model as models/classifier_wc.pth !")
+        torch.save(self.state_dict(), "models/classifier_vgg.pth")
+        print("saving trained model as models/classifier_vgg.pth !")
         return
     
     def load(self):
-        if os.path.exists("models/classifier_wc.pth"):
-            self.load_state_dict(torch.load("models/classifier_wc.pth"))
+        if os.path.exists("models/classifier_vgg.pth"):
+            self.load_state_dict(torch.load("models/classifier_vgg.pth"))
+            print("loaded presaved model from models/classifier_vgg.pth !")
         else:
             print("Model does not exist, training it first")
             self.learn(img_location)
             self.save()
             self.load()
-
-        print("loaded presaved model from models/classifier_wc.pth !")
+            print("saving!")
         return
     
     def learn(self, image_dir):
@@ -190,9 +190,7 @@ def one_hot_to_features(ourClassifier : Classifier_vgg, image_path):
 
 def returnTextWords(ourClassifier : Classifier_vgg, image_path):
     inferres_ints = one_hot_to_features(ourClassifier, image_path)
-    #print("Inferred Feautures = ", inferres_ints)
     words = []
-                            #  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,
     dictionary_features = {
         0 : {0:"sleeveless", 1 : "short-sleeve", 2 : "medium-sleeve", 3 : "long-sleeve"},
         1 : {0: "three-point lower cloth length", 1: "medium short lower cloth length", 2: "three-quarter lower cloth length", 3: "long leggings lower cloth length"},
@@ -251,25 +249,4 @@ def a():
     
     return
 
-a()
-
-# print("labels shape, fabric, pattern",shape_labels_dict[sample], fabric_texture_labels_dict[sample], pattern_texture_labels_dict[sample])
-# img1 = "/Users/gsp/Downloads/images/MEN-Sweatshirts_Hoodies-id_00000146-02_1_front.jpg"
-# one_hot = returnOneHot(img1)
-# text_words = returnTextWords(img1)
-# print("one_hot encoding = ", one_hot)
-# print("text words =", text_words)
-# tensor1 = ourClassifier.preprocess_image(img1)
-# print("Image 1 tensor shape= ", tensor1.shape)
-# print("Image 1 output = ", ourClassifier.forward(tensor1))
-# print("Now Training !\n\n")
-
-# ourClassifier.learn(img_location)
-# ourClassifier.save()
-# img2 = "/Users/gsp/Downloads/images/MEN-Denim-id_00000080-01_7_additional.jpg"
-# tensor2 = ourClassifier.preprocess_image(img2)
-# print("Image 1 after training yields : ", ourClassifier.forward(tensor2))
-        
-#[      5,       3,       0,       0,       0,       0,       0,       0,       3,       2,       1,       1       1,       1,       7        3,       4,       7]
-#[-0.0353,  0.0415, -0.0474,  0.0147,  0.0089, -0.1455, -0.3389, -0.2938, -0.2596, -0.2454, -0.2570, -0.4066, 0.3069, -0.0288, -0.0545, -0.0691, -0.2012,  0.2981]
-#[ 1.0563,  2.8451,  0.5471,  0.0428, -0.3958, -0.1766, -0.2021,  0.5303, 1.9068,  2.6096,  1.0149,  1.1397,  1.3911,  0.7264,  7.1941,  4.4880, 3.3402,  7.3134]
+#a()

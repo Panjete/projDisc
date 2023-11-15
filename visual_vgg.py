@@ -70,7 +70,7 @@ sample = "MEN-Denim-id_00000080-01_7_additional.jpg"
 img1 = "/Users/gsp/Downloads/images/MEN-Denim-id_00000080-01_7_additional.jpg"
 
 
-## Gives a list of 2048-length visual features from image_path 
+## Gives a list of 1024-length visual features from image_path 
 def returnVisualFeatures(ourVisualiser : Visualiser_vgg, image_path):
     tensor1 = ourVisualiser.preprocess_image(image_path)
     image_results = ourVisualiser.forward(tensor1)
@@ -86,7 +86,7 @@ def b():
     print(len(visual_features))
 
 
-b()
+#b()
 
 
 
