@@ -11,9 +11,9 @@ from math import ceil
 '''
 Classifier Object has the following methods
 learn(image_dir) -> to learn on a given database
-save() -> to save state to "classifier.pth"
-load() -> to load state from "classifier.pth"
-forward(image_tensor) -> to yield output 18-length attributes tensor
+save() -> to save state to "models/classifier.pth"
+load() -> to load state from "models/classifier.pth"
+forward(image_tensor) -> to yield output 98-length attributes tensor
 preprocess_image(image_path) -> to read file and construct tensor
 
 '''
@@ -42,15 +42,9 @@ def read_data(filename):
         labels_out[img_name] = shape_vector
     return labels_out
 
-# shape_labels_dict = read_data(shape_labels)
-# fabric_texture_labels_dict = read_data(fabric_texture_labels)
-# pattern_texture_labels_dict = read_data(pattern_texture_labels)
-
-
-
-class Classifier_with_color(nn.Module):
+class Classifier_vgg(nn.Module):
     def __init__(self, shape_labels_file,  fabric_texture_file, pattern_file):
-        super(Classifier_with_color, self).__init__()
+        super(Classifier_vgg, self).__init__()
         self.num_classes = 98 ## Training rather over one-hot
         self.vgg = torch.hub.load('pytorch/vision:v0.10.0', 'vgg11', weights = "DEFAULT")
         
@@ -79,8 +73,7 @@ class Classifier_with_color(nn.Module):
 
     def forward(self, image):
         #print("Forward recieved input shape =", image.shape)
-        x = self.vgg(image)
-        
+        x = self.vgg(image)    
         out = self.last_layer(x).view(-1)
         out = self.sg(out)
         return out
@@ -119,8 +112,8 @@ class Classifier_with_color(nn.Module):
         file_list = os.listdir(image_dir)
         file_list_with_path = [os.path.join(image_dir, file) for file in file_list]
         j = 0
-        #for i in range(len(file_list)):
-        for i in range(500):
+        for i in range(len(file_list)):
+        #for i in range(500):
             img_file_name = file_list[i]
             img_file_path = file_list_with_path[i]
 
@@ -165,15 +158,15 @@ def features_to_one_hot(image_features):
 
     return one_hot
 
-
-def returnOneHot(ourClassifier : Classifier_with_color, image_path):
+## Simply returns models output as pythonic array
+def returnOneHot(ourClassifier : Classifier_vgg, image_path):
     img_tensor = ourClassifier.preprocess_image(image_path)
     inferred_features = torch.Tensor.tolist(ourClassifier.forward(img_tensor))
     inferres_ints = [round(x) for x in inferred_features]
     return inferres_ints
 
-
-def one_hot_to_features(ourClassifier : Classifier_with_color, image_path):
+## Convert 98 length to 18 lenght for text words extraction
+def one_hot_to_features(ourClassifier : Classifier_vgg, image_path):
     img_tensor = ourClassifier.preprocess_image(image_path)
     inferred_features = torch.Tensor.tolist(ourClassifier.forward(img_tensor)) ## length 98
     features_length_dataset = [6, 5, 4, 3, 5, 3, 3, 3, 5, 7, 3, 3, 8, 8, 8, 8, 8, 8]
@@ -195,7 +188,7 @@ def one_hot_to_features(ourClassifier : Classifier_with_color, image_path):
 
     return features
 
-def returnTextWords(ourClassifier : Classifier_with_color, image_path):
+def returnTextWords(ourClassifier : Classifier_vgg, image_path):
     inferres_ints = one_hot_to_features(ourClassifier, image_path)
     #print("Inferred Feautures = ", inferres_ints)
     words = []
@@ -232,7 +225,7 @@ def returnTextWords(ourClassifier : Classifier_with_color, image_path):
 
 
 def a():
-    ourClassifier = Classifier_with_color(shape_labels_file=shape_labels, fabric_texture_file=fabric_texture_labels, pattern_file=pattern_texture_labels)
+    ourClassifier = Classifier_vgg(shape_labels_file=shape_labels, fabric_texture_file=fabric_texture_labels, pattern_file=pattern_texture_labels)
     
     sample = "MEN-Denim-id_00000080-01_7_additional.jpg"
     img1 = "/Users/gsp/Downloads/images/MEN-Denim-id_00000080-01_7_additional.jpg"
