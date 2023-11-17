@@ -47,7 +47,11 @@ text_query_vector = text_weight * np.array(get_query_vector2(query_text, embeddi
 labels = np.array(get_query_vector2(" ".join(returnTextWords(ourClassifier, query_image)), embeddings_model))
 one_hot_encoded_vectors = np.array(returnOneHot(ourClassifier, query_image))
 
+
+## To be used for evaluating relevant nearest neighbours
 concatenated_array = np.concatenate((visual_features, text_query_vector, labels, one_hot_encoded_vectors), axis=0)
+
+## To be used for evaluating cosine similarity
 query_vector_unweighted =  np.concatenate((visual_features, text_query_v_unw, labels, one_hot_encoded_vectors), axis=0)
 
 
