@@ -7,7 +7,7 @@ import numpy as np
 from annoy import AnnoyIndex
 from image_viewer import main_viewer, mv2, mv3
 from preprocess_words import get_query_vector2
-
+from metric import ang_avg
 
 ## Replace with folder you trained over, so that similar images can be retrieved
 train_folder = "/Users/gsp/Downloads/images"
@@ -24,6 +24,7 @@ training_dict_files = 'models/images_list.pkl'
 distance_mode = 'angular'     # 'angular' is suitable for cosine similarity. Can also try "euclidean", "manhattan", "hamming", or "dot"
 vector_length = 2346
 text_embeddings_file = 'models/text_embedding.pkl'
+text_weight = 6000
 
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
@@ -41,11 +42,13 @@ with open(text_embeddings_file, 'rb') as file:
     embeddings_model = pickle.load(file)
 
 visual_features = np.array(returnVisualFeatures(ourVisualiser, query_image))
-text_query_vector = 6000 * np.array(get_query_vector2(query_text, embeddings_model))
+text_query_v_unw = np.array(get_query_vector2(query_text, embeddings_model))
+text_query_vector = text_weight * np.array(get_query_vector2(query_text, embeddings_model))
 labels = np.array(get_query_vector2(" ".join(returnTextWords(ourClassifier, query_image)), embeddings_model))
 one_hot_encoded_vectors = np.array(returnOneHot(ourClassifier, query_image))
 
 concatenated_array = np.concatenate((visual_features, text_query_vector, labels, one_hot_encoded_vectors), axis=0)
+query_vector_unweighted =  np.concatenate((visual_features, text_query_v_unw, labels, one_hot_encoded_vectors), axis=0)
 
 
 with open(training_dict_files, 'rb') as file:
@@ -56,6 +59,10 @@ print(nearest_indices)
 
 # Retrieve the nearest words based on the indices
 nearest_images = [os.path.join(train_folder, images_list[index]) for index in nearest_indices]
+
+nearest_image_vectors = [approx_nn_model.get_item_vector(key) for key in nearest_indices]
+avg_angle_score = ang_avg(query_vector_unweighted, nearest_image_vectors)
+print("Final score efficiency = ", avg_angle_score)
 print("Len of retrieved iamges = " , len(nearest_images))
 print("Images = ", nearest_images)
 mv3(nearest_images)

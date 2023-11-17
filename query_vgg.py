@@ -17,7 +17,7 @@ train_folder = "/Users/gsp/Downloads/images"
 query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front.jpg"
 #query_image = "/Users/gsp/Documents/photus/meee.jpeg"
 #query_image = "/Users/gsp/Downloads/1516264345931.jpeg"
-query_text = "woman" ## Make sure empty code handled
+query_text = "generic" ## Make sure empty code handled
 
 learnt_data_space = "models/vector_search_vgg.pkl"
 training_dict_files = 'models/images_list_vgg.pkl'
