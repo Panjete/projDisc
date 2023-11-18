@@ -1,6 +1,6 @@
 import os
-from visual import returnVisualFeatures, Visualiser
-from classifier import returnOneHot, returnTextWords, Classifier
+from .visual import returnVisualFeatures, Visualiser
+from .classifier import returnOneHot, returnTextWords, Classifier
 import json
 import pickle
 import numpy as np

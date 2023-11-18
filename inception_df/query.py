@@ -5,7 +5,7 @@ from .classifier import returnOneHot, returnTextWords, Classifier
 import pickle
 import numpy as np
 from annoy import AnnoyIndex
-from image_viewer import  mv3
+#from image_viewer import  mv3
 from preprocess_words import get_query_vector2
 from metric import ang_avg
 
