@@ -10,7 +10,7 @@ from metric import ang_avg
 
 ## Replace with folder you trained over, so that similar images can be retrieved
 train_folder = "/Users/gsp/Downloads"
-number_retrieved = 10
+number_retrieved = 6
 
 #### INPUT FILE NAMES #### 
 #query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front.jpg"
@@ -26,7 +26,7 @@ text_embeddings_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_
 text_weight =  1000
 
 
-def Nearest_images(query_image, query_text):
+def Nearest_images(query_image, query_text, w = text_weight):
     ourVisualiser = Visualiser()
     ourVisualiser.load()
 
@@ -39,7 +39,7 @@ def Nearest_images(query_image, query_text):
 
     visual_features = np.array(returnVisualFeatures(ourVisualiser, query_image))
     text_query_v_unw = np.array(get_query_vector2(query_text, embeddings_model))
-    text_query_vector = text_weight * np.array(get_query_vector2(query_text, embeddings_model))
+    text_query_vector = w * np.array(get_query_vector2(query_text, embeddings_model))
 
 
     ## To be used for evaluating relevant nearest neighbours

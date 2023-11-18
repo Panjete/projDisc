@@ -10,7 +10,7 @@ from metric import ang_avg
 
 ## Replace with folder you trained over, so that similar images can be retrieved
 train_folder = "/Users/gsp/Downloads/images"
-number_retrieved = 10
+number_retrieved = 6
 
 #### INPUT FILE NAMES #### 
 #query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front.jpg"
@@ -25,9 +25,9 @@ text_embeddings_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
 pattern_texture_labels = "/Users/gsp/Downloads/labels/texture/pattern_ann.txt"
+text_weight = 6000
 
-
-def Nearest_images(query_image, query_text):
+def Nearest_images(query_image, query_text, w = text_weight):
    
     ourClassifier = Classifier_vgg(shape_labels_file=shape_labels, fabric_texture_file=fabric_texture_labels, pattern_file=pattern_texture_labels)
     ourClassifier.load()
@@ -43,7 +43,7 @@ def Nearest_images(query_image, query_text):
         embeddings_model = pickle.load(file)
 
     visual_features = np.array(returnVisualFeatures(ourVisualiser, query_image))
-    text_query_vector = 6000 * np.array(get_query_vector2(query_text, embeddings_model))
+    text_query_vector = w * np.array(get_query_vector2(query_text, embeddings_model))
     text_query_v_unw = np.array(get_query_vector2(query_text, embeddings_model))
     labels = np.array(get_query_vector2(" ".join(returnTextWords(ourClassifier, query_image)), embeddings_model))
     one_hot_encoded_vectors = np.array(returnOneHot(ourClassifier, query_image))
