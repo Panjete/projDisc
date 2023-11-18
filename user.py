@@ -1,14 +1,14 @@
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
-#import sv_ttk
+import sv_ttk
 
+## Choose which Env to Run by uncommenting relevant import statement
 
 #from inception_df.query import Nearest_images
-#from vgg_df.query_vgg import Nearest_images
+from vgg_df.query_vgg import Nearest_images
 #from fashion200.query_200 import Nearest_images
-
-from inception_df_color.query import Nearest_images
+#from inception_df_color.query import Nearest_images
 
 class ImageGridViewer:
     def __init__(self, root, final_nums):
@@ -36,20 +36,20 @@ def process_queries(text_query, image_path):
     return Nearest_images(image_path, text_query)
 
 def open_file_dialog():
-    file_path = filedialog.askopenfilename(title="Select an Image", filetypes=[("Image files", "*.png"),("Image files", "*.jpeg") ])
+    file_path = filedialog.askopenfilename(title="Select an Image", filetypes=[("Image files", "*.png"),("Image files", "*.jpeg"),("Image files", "*.jpg") ])
     if file_path:
         update_display(process_queries(text_entry.get(), file_path))
 
 def update_display(image_list):
     # Update the GUI to display the processed images
-    viewer = ImageGridViewer(root, 6)
+    viewer = ImageGridViewer(root, 10)
     for image_file in image_list:
         viewer.add_image_frame(image_file)
 
 # GUI setup
 root = tk.Tk()
 
-#sv_ttk.set_theme("light")
+sv_ttk.set_theme("light")
 root.title("Text and Image Query Processing")
 
 

@@ -49,12 +49,12 @@ Contains files for the `Fashion 200k` dataset, where:-
 
 ## References 
 
-[1] Jonghwa Yim, Junghun James Kim, Daekyu Shin ,  [https://arxiv.org/abs/1811.10969] “One-Shot Item Search with Multimodal Data”
+[1] Jonghwa Yim, Junghun James Kim, Daekyu Shin ,  [https://arxiv.org/abs/1811.10969](“One-Shot Item Search with Multimodal Data”)
 
-[2] [https://github.com/yumingj/DeepFashion-MultiModal] - The `DeepFashion - Multimodal` Dataset
-[3] [https://github.com/xthan/fashion-200k] - The `Fashion200k` Dataset
+[2] [https://github.com/yumingj/DeepFashion-MultiModal](The `DeepFashion - Multimodal` Dataset)
+[3] [https://github.com/xthan/fashion-200k] (The `Fashion200k` Dataset)
 
 ## Credits
 
-A team project by Atharv Dabli and Gurarmaan S. Panjeta
+A team project by [https://github.com/atharvadabli](Atharv Dabli) and [https://github.com/Panjete](Gurarmaan S. Panjeta).
 

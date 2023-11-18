@@ -5,12 +5,12 @@ from .classifier_vgg import returnOneHot, returnTextWords, Classifier_vgg
 import pickle
 import numpy as np
 from annoy import AnnoyIndex
-from preprocess_words import get_query_vector2
+from .preprocess_words import get_query_vector2
 from metric import ang_avg
 
 ## Replace with folder you trained over, so that similar images can be retrieved
 train_folder = "/Users/gsp/Downloads/images"
-
+number_retrieved = 10
 
 #### INPUT FILE NAMES #### 
 #query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front.jpg"
@@ -54,7 +54,7 @@ def Nearest_images(query_image, query_text):
     with open(training_dict_files, 'rb') as file:
         images_list = pickle.load(file)
 
-    nearest_indices = approx_nn_model.get_nns_by_vector(concatenated_array, n=6)
+    nearest_indices = approx_nn_model.get_nns_by_vector(concatenated_array, n=number_retrieved)
     print(nearest_indices)
 
     # Retrieve the nearest words based on the indices
