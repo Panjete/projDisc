@@ -49,12 +49,15 @@ Contains files for the `Fashion 200k` dataset, where:-
 
 ## References 
 
-[1] Jonghwa Yim, Junghun James Kim, Daekyu Shin ,  [https://arxiv.org/abs/1811.10969](“One-Shot Item Search with Multimodal Data”)
+[1] Jonghwa Yim, Junghun James Kim, Daekyu Shin ,  [“One-Shot Item Search with Multimodal Data”](https://arxiv.org/abs/1811.10969) 
 
-[2] [https://github.com/yumingj/DeepFashion-MultiModal](The `DeepFashion - Multimodal` Dataset)
-[3] [https://github.com/xthan/fashion-200k] (The `Fashion200k` Dataset)
+[2] [The DeepFashion - Multimodal Dataset](https://github.com/yumingj/DeepFashion-MultiModal) 
+
+[3] [The Fashion200k Dataset](https://github.com/xthan/fashion-200k) 
+
+[4] [Spotify's Annoy](https://github.com/spotify/annoy) - Approximate Nearest Neighbors in C++/Python optimized for memory usage and loading/saving to disk
 
 ## Credits
 
-A team project by [https://github.com/atharvadabli](Atharv Dabli) and [https://github.com/Panjete](Gurarmaan S. Panjeta).
+A team project by [Atharv Dabli](https://github.com/atharvadabli) and [Gurarmaan S. Panjeta](https://github.com/Panjete) .
 
