@@ -24,7 +24,7 @@ training_dict_files = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/colore
 distance_mode = 'angular'     # 'angular' is suitable for cosine similarity. Can also try "euclidean", "manhattan", "hamming", or "dot"
 vector_length = 2346
 text_embeddings_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/colored_text_embedding.pkl'
-text_weight = 1000
+text_weight = 200
 
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"

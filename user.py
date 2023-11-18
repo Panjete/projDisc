@@ -7,8 +7,8 @@ import sv_ttk
 
 #from inception_df.query import Nearest_images
 #from vgg_df.query_vgg import Nearest_images
-#from fashion200.query_200 import Nearest_images
-from inception_df_color.query import Nearest_images
+from fashion200.query_200 import Nearest_images
+#from inception_df_color.query import Nearest_images
 
 class ImageGridViewer:
     def __init__(self, root, final_nums):

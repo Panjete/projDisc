@@ -23,7 +23,7 @@ training_dict_files = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/images
 distance_mode = 'angular'     # 'angular' is suitable for cosine similarity. Can also try "euclidean", "manhattan", "hamming", or "dot"
 vector_length = 2148 ## 2048 + 100
 text_embeddings_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_embedding_200.pkl'
-text_weight =  1000
+text_weight =  200
 
 
 def Nearest_images(query_image, query_text, w = text_weight):

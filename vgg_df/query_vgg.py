@@ -25,7 +25,7 @@ text_embeddings_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
 pattern_texture_labels = "/Users/gsp/Downloads/labels/texture/pattern_ann.txt"
-text_weight = 6000
+text_weight = 500
 
 def Nearest_images(query_image, query_text, w = text_weight):
    

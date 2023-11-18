@@ -20,7 +20,7 @@ In the task of near similar image search, features from Deep Neural Network are 
 
 ### `inception_df/` 
 
-Contains files for the `DeepFashion` dataset, trained on the `inception_v3` model. Here, :- 
+Contains files for the `DeepFashion` dataset, trained on the `inception_v3` model. `w = 2000` set as default. Here, :- 
 
 - `captions.json` - contains the per-image captions, generated from label files
 - `train.py` - houses functionality to generate the learnt-database, compressing and storing visual and textual features
@@ -31,15 +31,15 @@ Contains files for the `DeepFashion` dataset, trained on the `inception_v3` mode
 
 ### `inception_df_color/` 
 
-Contains files for the `DeepFashion` dataset, trained on the `inception_v3` model. The caption file used here has colors appended to it, this had to be done manually, since the dataset does not provision for colors. A separate multi-label classifier model for color extraction was trained for 11 colors, and the generated colors per image were appended to the caption file. The other files are similar to `inception_df/`. This lets the user also query for terms like `[blue]` or `[brown]` as well!
+Contains files for the `DeepFashion` dataset, trained on the `inception_v3` model. The caption file used here has colors appended to it, this had to be done manually, since the dataset does not provision for colors. A separate multi-label classifier model for color extraction was trained for 11 colors, and the generated colors per image were appended to the caption file. Files used for this have been bundled in the `color/` subdirectory. `w = 200` set by default. The other files are similar to `inception_df/`. This lets the user also query for terms like `[blue]` or `[brown]` as well! 
 
 ### `vgg_df/`
 
-Contains files for the `DeepFashion` dataset, trained on the `VGG19` model. This was done to analyse perfomance difference of the retrieval system by contrasting with the `inception_v3` model, and to experiment with the vector-size of the visual features used in the dataset.
+Contains files for the `DeepFashion` dataset, trained on the `VGG19` model. This was done to analyse perfomance difference of the retrieval system by contrasting with the `inception_v3` model, and to experiment with the vector-size of the visual features used in the dataset. `w = 500` set by default.
 
 ### `fashion200/` 
 
-Contains files for the `Fashion 200k` dataset, where:- 
+Contains files for the `Fashion 200k` dataset, (`w = 200` as default) where:- 
 
 - `captions_200.json` - contains the per-image captions, generated from label files
 - `train_200.py` - houses functionality to generate the learnt-database, compressing and storing visual and textual features
