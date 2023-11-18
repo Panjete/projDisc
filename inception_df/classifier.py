@@ -27,7 +27,7 @@ shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
 pattern_texture_labels = "/Users/gsp/Downloads/labels/texture/pattern_ann.txt"
 
-
+model_path = "/Users/gsp/Desktop/SemVII/COL764/projbackup/models/classifier.pth"
 
 ## Returns mapping from ImageName -> Features List
 def read_data(filename):
@@ -99,20 +99,20 @@ class Classifier(nn.Module):
         return input_batch
     
     def save(self):
-        torch.save(self.state_dict(), "models/classifier.pth")
-        print("saving trained model as models/classifier.pth !")
+        torch.save(self.state_dict(), model_path)
+        print("saving trained model as", model_path)# ../models/classifier.pth !")
         return
     
     def load(self):
-        if os.path.exists("models/classifier.pth"):
-            self.load_state_dict(torch.load("models/classifier.pth"))
+        if os.path.exists(model_path):
+            self.load_state_dict(torch.load(model_path))
         else:
             print("Model does not exist, training it first")
             self.learn(img_location)
             self.save()
             self.load()
 
-        print("loaded presaved model from models/classifier.pth !")
+        print("loaded presaved model from ", model_path) #../models/classifier.pth !")
         return
     
     def learn(self, image_dir):

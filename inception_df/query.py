@@ -1,11 +1,11 @@
 # from visual import Visualiser
 import os
-from visual import returnVisualFeatures, Visualiser
-from classifier import returnOneHot, returnTextWords, Classifier
+from .visual import returnVisualFeatures, Visualiser
+from .classifier import returnOneHot, returnTextWords, Classifier
 import pickle
 import numpy as np
 from annoy import AnnoyIndex
-from image_viewer import main_viewer, mv2, mv3
+from image_viewer import  mv3
 from preprocess_words import get_query_vector2
 from metric import ang_avg
 
@@ -19,11 +19,11 @@ train_folder = "/Users/gsp/Downloads/images"
 #query_image = "/Users/gsp/Downloads/1516264345931.jpeg"
 #query_text = "woman floral" ## Make sure empty code handled
 
-learnt_data_space = "models/vector_search.pkl"
-training_dict_files = 'models/images_list.pkl'
+learnt_data_space = "/Users/gsp/Desktop/SemVII/COL764/projbackup/models/vector_search.pkl"
+training_dict_files = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/images_list.pkl'
 distance_mode = 'angular'     # 'angular' is suitable for cosine similarity. Can also try "euclidean", "manhattan", "hamming", or "dot"
 vector_length = 2346
-text_embeddings_file = 'models/text_embedding.pkl'
+text_embeddings_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_embedding.pkl'
 text_weight = 6000
 
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"

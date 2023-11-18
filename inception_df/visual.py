@@ -17,6 +17,9 @@ preprocess_image -> to convert image to suitably shaped tensor
 
 '''
 
+model_path = "/Users/gsp/Desktop/SemVII/COL764/projbackup/models/visualiser.pth"
+
+
 class Visualiser(nn.Module):
     def __init__(self):
         super(Visualiser, self).__init__()
@@ -38,12 +41,12 @@ class Visualiser(nn.Module):
         return out
     
     def save(self):
-        torch.save(self.state_dict(), "models/visualiser.pth")
-        print("saving trained model as models/visualiser.pth !")
+        torch.save(self.state_dict(), model_path)
+        print("saving trained model as ", model_path)# !")
         return
     def load(self):
-        self.load_state_dict(torch.load("models/visualiser.pth"))
-        print("loaded presaved model from models/visualiser.pth !")
+        self.load_state_dict(torch.load(model_path))
+        print("loaded presaved model from ", model_path)# !")
         return
     
     def preprocess_image(self, image_filename):

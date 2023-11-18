@@ -8,10 +8,10 @@ from annoy import AnnoyIndex
 from preprocess_words import get_query_vector2
 
 #### OUTPUT FILES ####
-test_embedding_file = 'models/text_embedding.pkl'
+test_embedding_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_embedding.pkl'
 generic_text = "sleeveless print block pure color"
-learnt_data_space = "models/vector_search.pkl"
-training_dict_files = 'models/images_list.pkl'
+learnt_data_space = "/Users/gsp/Desktop/SemVII/COL764/projbackup/models/vector_search.pkl"
+training_dict_files = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/images_list.pkl'
 
 
 #### INPUT FILES ####
