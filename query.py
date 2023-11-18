@@ -14,10 +14,10 @@ train_folder = "/Users/gsp/Downloads/images"
 
 
 #### INPUT FILE NAMES #### 
-query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front.jpg"
+#query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front.jpg"
 #query_image = "/Users/gsp/Documents/photus/meee.jpeg"
 #query_image = "/Users/gsp/Downloads/1516264345931.jpeg"
-query_text = "woman floral" ## Make sure empty code handled
+#query_text = "woman floral" ## Make sure empty code handled
 
 learnt_data_space = "models/vector_search.pkl"
 training_dict_files = 'models/images_list.pkl'
@@ -29,44 +29,40 @@ text_weight = 6000
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
 pattern_texture_labels = "/Users/gsp/Downloads/labels/texture/pattern_ann.txt"
-ourClassifier = Classifier(shape_labels_file=shape_labels, fabric_texture_file=fabric_texture_labels, pattern_file=pattern_texture_labels)
-ourClassifier.load()
-ourVisualiser = Visualiser()
-ourVisualiser.load()
+
+def Nearest_images(query_image, query_text):
+    ourClassifier = Classifier(shape_labels_file=shape_labels, fabric_texture_file=fabric_texture_labels, pattern_file=pattern_texture_labels)
+    ourClassifier.load()
+    ourVisualiser = Visualiser()
+    ourVisualiser.load()
 
 
-approx_nn_model = AnnoyIndex(vector_length, distance_mode)
-approx_nn_model.load(learnt_data_space)
+    approx_nn_model = AnnoyIndex(vector_length, distance_mode)
+    approx_nn_model.load(learnt_data_space)
 
-with open(text_embeddings_file, 'rb') as file:
-    embeddings_model = pickle.load(file)
+    with open(text_embeddings_file, 'rb') as file:
+        embeddings_model = pickle.load(file)
+    visual_features = np.array(returnVisualFeatures(ourVisualiser, query_image))
+    text_query_v_unw = np.array(get_query_vector2(query_text, embeddings_model))
+    text_query_vector = text_weight * np.array(get_query_vector2(query_text, embeddings_model))
+    labels = np.array(get_query_vector2(" ".join(returnTextWords(ourClassifier, query_image)), embeddings_model))
+    one_hot_encoded_vectors = np.array(returnOneHot(ourClassifier, query_image))
 
-visual_features = np.array(returnVisualFeatures(ourVisualiser, query_image))
-text_query_v_unw = np.array(get_query_vector2(query_text, embeddings_model))
-text_query_vector = text_weight * np.array(get_query_vector2(query_text, embeddings_model))
-labels = np.array(get_query_vector2(" ".join(returnTextWords(ourClassifier, query_image)), embeddings_model))
-one_hot_encoded_vectors = np.array(returnOneHot(ourClassifier, query_image))
+    concatenated_array = np.concatenate((visual_features, text_query_vector, labels, one_hot_encoded_vectors), axis=0)
 
+    ## To be used for evaluating cosine similarity
+    query_vector_unweighted =  np.concatenate((visual_features, text_query_v_unw, labels, one_hot_encoded_vectors), axis=0)
 
-## To be used for evaluating relevant nearest neighbours
-concatenated_array = np.concatenate((visual_features, text_query_vector, labels, one_hot_encoded_vectors), axis=0)
+    with open(training_dict_files, 'rb') as file:
+        images_list = pickle.load(file)
 
-## To be used for evaluating cosine similarity
-query_vector_unweighted =  np.concatenate((visual_features, text_query_v_unw, labels, one_hot_encoded_vectors), axis=0)
+    nearest_indices = approx_nn_model.get_nns_by_vector(concatenated_array, n=6)
+    print(nearest_indices)
 
+    # Retrieve the nearest words based on the indices
+    nearest_images = [os.path.join(train_folder, images_list[index]) for index in nearest_indices]
+    nearest_image_vectors = [approx_nn_model.get_item_vector(key) for key in nearest_indices]
+    avg_angle_score = ang_avg(query_vector_unweighted, nearest_image_vectors)
+    print("Final score efficiency = ", avg_angle_score)
 
-with open(training_dict_files, 'rb') as file:
-    images_list = pickle.load(file)
-
-nearest_indices = approx_nn_model.get_nns_by_vector(concatenated_array, n=6)
-print(nearest_indices)
-
-# Retrieve the nearest words based on the indices
-nearest_images = [os.path.join(train_folder, images_list[index]) for index in nearest_indices]
-
-nearest_image_vectors = [approx_nn_model.get_item_vector(key) for key in nearest_indices]
-avg_angle_score = ang_avg(query_vector_unweighted, nearest_image_vectors)
-print("Final score efficiency = ", avg_angle_score)
-print("Len of retrieved iamges = " , len(nearest_images))
-print("Images = ", nearest_images)
-mv3(nearest_images)
+    return nearest_images

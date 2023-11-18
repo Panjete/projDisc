@@ -39,3 +39,8 @@ TODO:
 > Means and stds while learning images for classifier ? 
 > Data set does not have colour description
 
+- query_200.py , train_200.py , models_200, captions_200.json - for the Fashion200 Dataset
+- training.py, query.py, classifier.py, visual.py, captions.json - For Inception, DeepFashion
+- training_vgg.py, query_vgg.py, classifier_vgg.py, visual_vgg.py , captions.json- For VGG19, DeepFashion
+- text_embedding.ipynb - for learning text embeddings
+-

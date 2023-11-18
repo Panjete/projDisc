@@ -162,7 +162,7 @@ def b():
     visual_features = returnVisualFeatures(ourVisualiser, img1)
     print(len(visual_features))
 
-collect_data()
+#collect_data()
 
 #b()
 
