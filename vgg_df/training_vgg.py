@@ -8,15 +8,15 @@ from annoy import AnnoyIndex
 from preprocess_words import get_query_vector2
 
 #### OUTPUT FILES ####
-generic_text = "sleeveless print block pure color" 
-learnt_data_space = "/Users/gsp/Desktop/SemVII/COL764/projbackup/models/vector_search_vgg.pkl"
-training_dict_files = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/images_list_vgg.pkl'
+pwd = "/Users/gsp/Desktop/SemVII/COL764/projbackup/"
+learnt_data_space = pwd + "models/vector_search_vgg.pkl"
+training_dict_files = pwd + 'models/images_list_vgg.pkl'
 
 
 #### INPUT FILES ####
-test_embedding_file = 'models/text_embedding.pkl'
+test_embedding_file = pwd + 'models/text_embedding.pkl'
 folder_path = "/Users/gsp/Downloads/images"
-caption_file = "captions.json"
+caption_file = pwd + "vgg_df/captions.json"
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
 pattern_texture_labels = "/Users/gsp/Downloads/labels/texture/pattern_ann.txt"
@@ -27,7 +27,7 @@ ourClassifier = Classifier_vgg(shape_labels_file=shape_labels, fabric_texture_fi
 ourClassifier.load()
 ourVisualiser = Visualiser_vgg()
 ourVisualiser.load()
-
+generic_text = "sleeveless print block pure color" 
 
 # List all files in the folder -> FILENAMES, not FILEPATHS
 file_list = os.listdir(folder_path)

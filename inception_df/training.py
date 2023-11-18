@@ -8,15 +8,16 @@ from annoy import AnnoyIndex
 from preprocess_words import get_query_vector2
 
 #### OUTPUT FILES ####
-test_embedding_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_embedding.pkl'
+pwd = "/Users/gsp/Desktop/SemVII/COL764/projbackup/"
+test_embedding_file = pwd + 'models/text_embedding.pkl'
 generic_text = "sleeveless print block pure color"
-learnt_data_space = "/Users/gsp/Desktop/SemVII/COL764/projbackup/models/vector_search.pkl"
-training_dict_files = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/images_list.pkl'
+learnt_data_space = pwd + "models/vector_search.pkl"
+training_dict_files = pwd + 'models/images_list.pkl'
 
 
 #### INPUT FILES ####
 folder_path = "/Users/gsp/Downloads/images"
-caption_file = "captions.json"
+caption_file = pwd + "inception_df/captions.json"
 shape_labels = "/Users/gsp/Downloads/labels/shape/shape_anno_all.txt"
 fabric_texture_labels = "/Users/gsp/Downloads/labels/texture/fabric_ann.txt"
 pattern_texture_labels = "/Users/gsp/Downloads/labels/texture/pattern_ann.txt"
