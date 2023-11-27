@@ -6,7 +6,7 @@ from fashion200.query_200 import Nearest_images
 import pickle
 
 from datasets import Fashion200k
-from fashion200.models_200 import returnVisualFeatures, Visualiser
+from fashion200.models_200 import returnVisualfromPIL, Visualiser
 from fashion200.preprocess_words import get_query_vector2
 test_embedding_file = '/Users/gsp/Desktop/SemVII/COL764/projbackup/models/text_embedding_200.pkl'
 with open(test_embedding_file, 'rb') as file:
@@ -24,40 +24,32 @@ def test(testset):
   all_target_captions = []
   
     # compute test query features
-  imgs = []
-  mods = []
   ourVisualiser = Visualiser()
 
   for t in tqdm(test_queries):
-    imgs = [testset.get_img(t['source_img_id'])]
-    mods = [t['mod']['str']]
-    print("FIRST t = ", t)
-    print("IMGS = ", imgs)
-    print("mods = ", mods)
-    img_component = [returnVisualFeatures(ourVisualiser, img) for img in imgs]
-    text_component = [np.array(get_query_vector2(text, embeddings_model)) for text in mods]
-    f = [np.concatenate(img_component[c], text_component[c]) for c in range(len(img_component))]
+    img = testset.get_img(t['source_img_id'])
+    text = t['mod']['str']
+    #print("FIRST t = ", t)
+    #print("IMGS = ", imgs)
+    #print("mods = ", mods)
+    img_component = returnVisualfromPIL(ourVisualiser, img) 
+    text_component = get_query_vector2(text, embeddings_model).tolist()
+    #print("IMG COMPONENT = ", len(img_component[0]))
+    #print("TEXT COMPONENT = ", len(text_component[0]))
+    f = [np.array(img_component+text_component)]
+    #print("F SHAPE = ", f[0].shape)
     all_queries += [f]
-    
+  print("LEN ALL QUERIES = ", len(all_queries))
   all_queries = np.concatenate(all_queries)
+  print("ALL QUERIES SHAPE = ", all_queries.shape)
   all_target_captions = [t['target_caption'] for t in test_queries]
 
   # compute all image features
-  imgs = []
   for i in tqdm(range(len(testset.imgs))):
-    print("here??")
-    imgs += [testset.get_img(i)]
-    if i == len(testset.imgs) - 1:
-      if 'torch' not in str(type(imgs[0])):
-        imgs = [torch.from_numpy(d).float() for d in imgs]
-      imgs = torch.stack(imgs).float()
-      imgs = torch.autograd.Variable(imgs).cuda()
-
-      imgs = [ourVisualiser.preprocess_image(img) for img in imgs]
-      imgs = np.ndarray(imgs)
-      #imgs = model.extract_img_feature(imgs).data.cpu().numpy()
-      all_imgs += [imgs]
-      imgs = []
+    img = testset.get_img(i)
+    img = np.array(returnVisualfromPIL(ourVisualiser, img))
+    #imgs = model.extract_img_feature(imgs).data.cpu().numpy()
+    all_imgs += [img]
   all_imgs = np.concatenate(all_imgs)
   all_captions = [img['captions'][0] for img in testset.imgs]
 

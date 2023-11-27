@@ -141,6 +141,17 @@ class Visualiser(nn.Module):
         input_tensor = preprocess(input_image)
         input_batch = input_tensor.unsqueeze(0)
         return input_batch
+    
+    def preprocess_PIL(self, image_PIL):
+        preprocess = torchvision.transforms.Compose([
+            torchvision.transforms.Resize(299),
+            torchvision.transforms.CenterCrop(299),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        input_tensor = preprocess(image_PIL)
+        input_batch = input_tensor.unsqueeze(0)
+        return input_batch
 
 
 
@@ -150,6 +161,13 @@ img1 = "/Users/gsp/Downloads/images/MEN-Denim-id_00000080-01_7_additional.jpg"
 ## Gives a list of 2048-length visual features from image_path 
 def returnVisualFeatures(ourVisualiser : Visualiser, image_path):
     tensor1 = ourVisualiser.preprocess_image(image_path)
+    image_results = ourVisualiser.forward(tensor1)
+    feature_list = torch.Tensor.tolist(image_results)
+    return feature_list
+
+## Gives a list of 2048-length visual features from image_PIL 
+def returnVisualfromPIL(ourVisualiser : Visualiser, image_PIL):
+    tensor1 = ourVisualiser.preprocess_PIL(image_PIL)
     image_results = ourVisualiser.forward(tensor1)
     feature_list = torch.Tensor.tolist(image_results)
     return feature_list
