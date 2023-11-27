@@ -2,6 +2,11 @@
 
 In the task of near similar image search, features from Deep Neural Network are often used to compare images and measure similarity. Our analysis explores the vast data to compute k-nearest neighbors using both image and text (both derived fron the image, and provided by the dataset/user). We reduce the problem of searching over multiple modes into a single space by drawing apt correlations between the modes. Algorithmic details can be found in [1] and `report.pdf.`
 
+<p align = "center">
+<img width="385" alt="inc_defa" src="https://github.com/Panjete/projDisc/assets/103451209/4a659bf4-f2e9-4fe5-8682-c526a52deaa4">
+<img width="350" alt="inc_vari" src="https://github.com/Panjete/projDisc/assets/103451209/70d47a61-9fae-490c-bafb-8eefd48c6f66">
+</p>
+
 ## Getting Started
 
 1. Install `pytorch`, `torchvision`, `pickle`, `annoy` and `tkinter` libraries.
@@ -48,6 +53,9 @@ Contains files for the `Fashion 200k` dataset, (`w = 200` as default) where:-
 - `preprocess_words.py` - for stopword elimination and text -> vector conversion.
 
 ## References 
+
+
+
 
 [1] Jonghwa Yim, Junghun James Kim, Daekyu Shin ,  [“One-Shot Item Search with Multimodal Data”](https://arxiv.org/abs/1811.10969) 
 
