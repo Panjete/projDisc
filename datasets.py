@@ -60,7 +60,7 @@ class Fashion200k(BaseDataset):
     label_files = [
         f for f in listdir(label_path) if isfile(join(label_path, f))
     ]
-    label_files = [f for f in label_files if split in f]
+    #label_files = [f for f in label_files if split in f]
 
     # read image info from label files
     self.imgs = []
@@ -69,7 +69,7 @@ class Fashion200k(BaseDataset):
       return s.strip().replace('.',
                                'dotmark').replace('?', 'questionmark').replace(
                                    '&', 'andmark').replace('*', 'starmark')
-
+    self.reversemap = {}
     for filename in label_files:
       print('read ' + filename)
       with open(label_path + '/' + filename) as f:
@@ -84,6 +84,10 @@ class Fashion200k(BaseDataset):
             'modifiable': False
         }
         self.imgs += [img]
+
+        self.reversemap[line[0]] = len(self.imgs)-1
+        #print("PATH TAKEN = ", line[0])
+        
     print('Fashion200k:', len(self.imgs), 'images')
 
     # generate query for training or testing

@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 from tqdm import tqdm as tqdm
-from fashion200.query_200 import Nearest_images
+from fashion200.query_200 import Nearest_images, nearest_n_eval
 import pickle
 import time
 
@@ -18,7 +18,7 @@ def test(testset):
   """Tests a model over the given testset."""
   #model.eval()
   test_queries = testset.get_test_queries()
-
+  print("Test queries ;", test_queries[:5])
   all_imgs = []
   all_captions = []
   all_queries = []
@@ -27,72 +27,47 @@ def test(testset):
     # compute test query features
   ourVisualiser = Visualiser()
   jj = 0
+
+  hamaare_saare_captions = []
   for t in tqdm(test_queries):
     img = testset.get_img(t['source_img_id'])
-    text = t['mod']['str']
-    #print("FIRST t = ", t)
-    #print("IMGS = ", imgs)
-    #print("mods = ", mods)
+    text = t['mod']['str'].split()[-1]
+    
     img_component = returnVisualfromPIL(ourVisualiser, img) 
     text_component = get_query_vector2(text, embeddings_model).tolist()
-    #print("IMG COMPONENT = ", len(img_component[0]))
-    #print("TEXT COMPONENT = ", len(text_component[0]))
-    f = [np.array(img_component+text_component)]
-    #print("F SHAPE = ", f[0].shape)
-    all_queries += [f]
+    top110 = nearest_n_eval(img_component, text_component)
+    top110_paths = [path[21:] for path in top110]
+    top110_indices = []
+    for path in top110_paths:
+      if path in testset.reversemap:
+        top110_indices += [testset.reversemap[path]]
+      else:
+        top110_indices += [1234]
+    top110_captions = [testset.imgs[idx]['captions'][0] for idx in top110_indices]
+    hamaare_saare_captions += [top110_captions]
     jj +=1
     if jj %1000 == 0:
-      time.sleep(30)
-      print("sleeping because reached = ", jj)
+      #time.sleep(30)
+      #print("sleeping because reached = ", jj)
+      pass
   
-  all_queries = np.concatenate(all_queries)
-  print("ALL QUERIES SHAPE = ", all_queries.shape)
   all_target_captions = [t['target_caption'] for t in test_queries]
   print("LEN ALL target captions = ", len(all_target_captions))
   jj = 0
 
-  # compute all image features
-  for i in tqdm(range(len(testset.imgs))):
-    img = testset.get_img(i)
-    img = [np.array(returnVisualfromPIL(ourVisualiser, img) + [0 for _ in range(100)])]
-    #imgs = model.extract_img_feature(imgs).data.cpu().numpy()
-    all_imgs += [img]
-    jj +=1
-    if jj %1000 == 0:
-      time.sleep(30)
-      print("sleeping because reached = ", jj)
   
-  all_imgs = np.concatenate(all_imgs)
-  all_captions = [img['captions'][0] for img in testset.imgs]
-  print("LEN ALL IMAGES = ", all_imgs.shape)
-  print("LEN ALL CAPTIONS = ", len(all_captions))
+  
 
-
-  # feature normalization
-  for i in range(all_queries.shape[0]):
-    all_queries[i, :] /= np.linalg.norm(all_queries[i, :])
-  for i in range(all_imgs.shape[0]):
-    all_imgs[i, :] /= np.linalg.norm(all_imgs[i, :])
-
-  # match test queries to target images, get nearest neighbors
-  nn_result = []
-  for i in tqdm(range(all_queries.shape[0])):
-    #print("LHS SHAPE = ", all_queries[i:(i+1), :].shape)
-    #print("RHS SHAPE = ", all_imgs.T.shape)
-    sims = all_queries[i:(i+1), :].dot(all_imgs.T)
-    if test_queries:
-      sims[0, test_queries[i]['source_img_id']] = -10e10  # remove query image
-    nn_result.append(np.argsort(-sims[0, :])[:110])
-
+  print("ALL TARGET CAPTIONS : \n :", all_target_captions[:5])
   # compute recalls
   out = []
-  nn_result = [[all_captions[nn] for nn in nns] for nns in nn_result]
   for k in [1, 5, 10, 50, 100]:
     r = 0.0
-    for i, nns in enumerate(nn_result):
+    for i, nns in enumerate(hamaare_saare_captions):
       if all_target_captions[i] in nns[:k]:
         r += 1
-    r /= len(nn_result)
+
+    r /= len(hamaare_saare_captions)
     out += [('recall_top' + str(k) + '_correct_composition', r)]
     print('recall_top' , k , '_correct_composition', r)
     with open("logs.txt", 'a') as fi:

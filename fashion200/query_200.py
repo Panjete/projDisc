@@ -10,7 +10,7 @@ from metric import ang_avg
 
 ## Replace with folder you trained over, so that similar images can be retrieved
 train_folder = "/Users/gsp/Downloads"
-number_retrieved = 6
+number_retrieved = 110
 
 #### INPUT FILE NAMES #### 
 #query_image = "/Users/gsp/Downloads/images/MEN-Tees_Tanks-id_00000390-13_1_front.jpg"
@@ -63,4 +63,18 @@ def Nearest_images(query_image, query_text, w = text_weight):
     print("Final score efficiency = ", avg_angle_score)
     print("Len of retrieved iamges = " , len(nearest_images))
     print("Images = ", nearest_images)
+    return nearest_images
+
+def nearest_n_eval(img_PIL, text_vec, w = text_weight):
+    approx_nn_model = AnnoyIndex(vector_length, distance_mode)
+    approx_nn_model.load(learnt_data_space)
+    visual_features = np.array(img_PIL)
+    text_query_vector = w * np.array(text_vec)
+    ## To be used for evaluating relevant nearest neighbours
+    concatenated_array = np.concatenate((visual_features, text_query_vector), axis=0)
+    with open(training_dict_files, 'rb') as file:
+        images_list = pickle.load(file)
+    nearest_indices = approx_nn_model.get_nns_by_vector(concatenated_array, n=number_retrieved)
+    # Retrieve the nearest words based on the indices
+    nearest_images = [os.path.join(train_folder, images_list[index]) for index in nearest_indices]
     return nearest_images
