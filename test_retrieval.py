@@ -4,6 +4,7 @@ import torch
 from tqdm import tqdm as tqdm
 from fashion200.query_200 import Nearest_images
 import pickle
+import time
 
 from datasets import Fashion200k
 from fashion200.models_200 import returnVisualfromPIL, Visualiser
@@ -25,8 +26,8 @@ def test(testset):
   
     # compute test query features
   ourVisualiser = Visualiser()
-
-  for t in tqdm(test_queries[:300]):
+  jj = 0
+  for t in tqdm(test_queries):
     img = testset.get_img(t['source_img_id'])
     text = t['mod']['str']
     #print("FIRST t = ", t)
@@ -39,19 +40,28 @@ def test(testset):
     f = [np.array(img_component+text_component)]
     #print("F SHAPE = ", f[0].shape)
     all_queries += [f]
+    jj +=1
+    if jj %1000 == 0:
+      time.sleep(30)
+      print("sleeping because reached = ", jj)
   
   all_queries = np.concatenate(all_queries)
   print("ALL QUERIES SHAPE = ", all_queries.shape)
   all_target_captions = [t['target_caption'] for t in test_queries]
   print("LEN ALL target captions = ", len(all_target_captions))
-
+  jj = 0
 
   # compute all image features
-  for i in tqdm(range(300)):#len(testset.imgs))):
+  for i in tqdm(range(len(testset.imgs))):
     img = testset.get_img(i)
     img = [np.array(returnVisualfromPIL(ourVisualiser, img) + [0 for _ in range(100)])]
     #imgs = model.extract_img_feature(imgs).data.cpu().numpy()
     all_imgs += [img]
+    jj +=1
+    if jj %1000 == 0:
+      time.sleep(30)
+      print("sleeping because reached = ", jj)
+  
   all_imgs = np.concatenate(all_imgs)
   all_captions = [img['captions'][0] for img in testset.imgs]
   print("LEN ALL IMAGES = ", all_imgs.shape)
@@ -73,7 +83,7 @@ def test(testset):
     if test_queries:
       sims[0, test_queries[i]['source_img_id']] = -10e10  # remove query image
     nn_result.append(np.argsort(-sims[0, :])[:110])
-  
+
   # compute recalls
   out = []
   nn_result = [[all_captions[nn] for nn in nns] for nns in nn_result]
@@ -84,6 +94,9 @@ def test(testset):
         r += 1
     r /= len(nn_result)
     out += [('recall_top' + str(k) + '_correct_composition', r)]
+    print('recall_top' , k , '_correct_composition', r)
+    with open("logs.txt", 'a') as fi:
+      fi.write('recall_top' + str(k) + '_correct_composition' + str(r) + "\n")
   return out
 
 
