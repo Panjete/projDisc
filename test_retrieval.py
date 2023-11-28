@@ -26,7 +26,7 @@ def test(testset):
     # compute test query features
   ourVisualiser = Visualiser()
 
-  for t in tqdm(test_queries):
+  for t in tqdm(test_queries[:300]):
     img = testset.get_img(t['source_img_id'])
     text = t['mod']['str']
     #print("FIRST t = ", t)
@@ -39,19 +39,23 @@ def test(testset):
     f = [np.array(img_component+text_component)]
     #print("F SHAPE = ", f[0].shape)
     all_queries += [f]
-  print("LEN ALL QUERIES = ", len(all_queries))
+  
   all_queries = np.concatenate(all_queries)
   print("ALL QUERIES SHAPE = ", all_queries.shape)
   all_target_captions = [t['target_caption'] for t in test_queries]
+  print("LEN ALL target captions = ", len(all_target_captions))
+
 
   # compute all image features
-  for i in tqdm(range(len(testset.imgs))):
+  for i in tqdm(range(300)):#len(testset.imgs))):
     img = testset.get_img(i)
-    img = np.array(returnVisualfromPIL(ourVisualiser, img))
+    img = [np.array(returnVisualfromPIL(ourVisualiser, img) + [0 for _ in range(100)])]
     #imgs = model.extract_img_feature(imgs).data.cpu().numpy()
     all_imgs += [img]
   all_imgs = np.concatenate(all_imgs)
   all_captions = [img['captions'][0] for img in testset.imgs]
+  print("LEN ALL IMAGES = ", all_imgs.shape)
+  print("LEN ALL CAPTIONS = ", len(all_captions))
 
 
   # feature normalization
@@ -63,11 +67,13 @@ def test(testset):
   # match test queries to target images, get nearest neighbors
   nn_result = []
   for i in tqdm(range(all_queries.shape[0])):
+    #print("LHS SHAPE = ", all_queries[i:(i+1), :].shape)
+    #print("RHS SHAPE = ", all_imgs.T.shape)
     sims = all_queries[i:(i+1), :].dot(all_imgs.T)
     if test_queries:
       sims[0, test_queries[i]['source_img_id']] = -10e10  # remove query image
     nn_result.append(np.argsort(-sims[0, :])[:110])
-
+  
   # compute recalls
   out = []
   nn_result = [[all_captions[nn] for nn in nns] for nns in nn_result]
