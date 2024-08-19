@@ -1,4 +1,4 @@
-# Multimodal Search with 
+# Multimodal Search 
 
 In the task of near similar image search, features from Deep Neural Network are often used to compare images and measure similarity. Our analysis explores the vast data to compute k-nearest neighbors using both image and text (both derived fron the image, and provided by the dataset/user). We reduce the problem of searching over multiple modes into a single space by drawing apt correlations between the modes. Algorithmic details can be found in [1] and `report.pdf.`
 
